@@ -1,4 +1,4 @@
-# LedgerQueue (v0)
+# Ledger Mesh
 
 Minimal in-memory job queue in Go — API + worker in one process.
 
