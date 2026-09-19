@@ -1,4 +1,4 @@
-package main
+package job
 
 import (
 	"encoding/json"
@@ -23,12 +23,12 @@ type Job struct {
 	UpdatedAt time.Time       `json:"updated_at"`
 }
 
-type createJobRequest struct {
+type CreateRequest struct {
 	Type    string          `json:"type"`
 	Payload json.RawMessage `json:"payload"`
 }
 
-func newJob(id string, req createJobRequest) Job {
+func New(id string, req CreateRequest) Job {
 	now := time.Now().UTC()
 	return Job{
 		ID:        id,
