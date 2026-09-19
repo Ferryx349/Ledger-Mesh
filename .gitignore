@@ -1,6 +1,3 @@
 ledgerqueue
 bin/
-cmd/
-internal/
-docs/
 .DS_Store
