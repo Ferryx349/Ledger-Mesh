@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mockprovider-once
+  namespace: ledgerqueue
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mockprovider
+          image: ledgerqueue:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/local/bin/mockprovider"]
+          envFrom:
+            - configMapRef:
+                name: ledgerqueue-config
+          env:
+            - name: MOCK_PAYMENT_COUNT
+              value: "5"
+            - name: MOCK_ORPHAN_TXN
+              value: "1"

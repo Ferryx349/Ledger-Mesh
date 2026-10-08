@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reconcile-daily
+  namespace: ledgerqueue
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: reconcile
+              image: ledgerqueue:latest
+              imagePullPolicy: IfNotPresent
+              command: ["/usr/local/bin/reconcile"]
+              envFrom:
+                - configMapRef:
+                    name: ledgerqueue-config
+              env:
+                - name: RECONCILE_MODE
+                  value: inline

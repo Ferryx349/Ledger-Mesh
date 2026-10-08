@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledgerqueue-config
+  namespace: ledgerqueue
+data:
+  QUEUE_KEY: jobs:queue
+  PROCESSING_KEY: jobs:processing
+  DLQ_KEY: jobs:dlq
+  REDIS_URL: redis://redis:6379/0
+  DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+  WEBHOOK_SECRET: dev-webhook-secret
+  API_URL: http://api:8080
