@@ -24,13 +24,16 @@ func main() {
 	}
 	defer st.Close()
 
-	q, err := queue.NewRedis(ctx, cfg.RedisURL, cfg.QueueKey)
+	q, err := queue.NewRedis(ctx, cfg.RedisURL, cfg.QueueKey, cfg.ProcessingKey, cfg.DLQKey)
 	if err != nil {
 		log.Fatalf("redis: %v", err)
 	}
 	defer func() { _ = q.Close() }()
 
-	log.Println("worker started")
-	worker.Run(ctx, st, q)
+	log.Printf("worker %s started", cfg.WorkerID)
+	worker.Run(ctx, st, q, worker.Config{
+		WorkerID:  cfg.WorkerID,
+		RetryBase: cfg.RetryBase,
+	})
 	log.Println("worker stopped")
 }

@@ -26,13 +26,13 @@ func main() {
 	}
 	defer st.Close()
 
-	q, err := queue.NewRedis(ctx, cfg.RedisURL, cfg.QueueKey)
+	q, err := queue.NewRedis(ctx, cfg.RedisURL, cfg.QueueKey, cfg.ProcessingKey, cfg.DLQKey)
 	if err != nil {
 		log.Fatalf("redis: %v", err)
 	}
 	defer func() { _ = q.Close() }()
 
-	api := &handler.API{Store: st, Queue: q}
+	api := &handler.API{Store: st, Queue: q, WebhookSecret: cfg.WebhookSecret}
 	httpServer := &http.Server{
 		Addr:              cfg.Addr,
 		Handler:           api.Routes(),
