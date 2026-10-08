@@ -1,3 +1,7 @@
 ledgerqueue
 bin/
 .DS_Store
+docs/.pdf-venv/
+docs/Ledger-Mesh-Interview-Guide.md
+docs/Ledger-Mesh-Interview-Guide.pdf
+docs/generate-pdf.sh
