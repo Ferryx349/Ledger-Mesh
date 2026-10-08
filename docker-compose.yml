@@ -22,3 +22,87 @@ services:
       interval: 2s
       timeout: 5s
       retries: 10
+
+  migrate:
+    image: postgres:16-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    environment:
+      PGPASSWORD: ledger
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        psql -h postgres -U ledger -d ledgerqueue -f /migrations/001_jobs.sql
+        psql -h postgres -U ledger -d ledgerqueue -f /migrations/002_fintech.sql
+
+  api:
+    build: .
+    command: ["/usr/local/bin/api"]
+    ports:
+      - "8080:8080"
+    environment:
+      ADDR: ":8080"
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      WEBHOOK_SECRET: dev-webhook-secret
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: ["/usr/local/bin/worker"]
+    environment:
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      WORKER_ID: worker-1
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+
+  worker2:
+    build: .
+    command: ["/usr/local/bin/worker"]
+    environment:
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      WORKER_ID: worker-2
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  mockprovider:
+    build: .
+    profiles: ["demo"]
+    command: ["/usr/local/bin/mockprovider"]
+    environment:
+      API_URL: http://api:8080
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+      WEBHOOK_SECRET: dev-webhook-secret
+      MOCK_PAYMENT_COUNT: "5"
+      MOCK_INTERVAL_SECONDS: "1"
+      MOCK_ORPHAN_TXN: "1"
+    depends_on:
+      api:
+        condition: service_started
+
+  reconcile:
+    build: .
+    profiles: ["demo"]
+    command: ["/usr/local/bin/reconcile"]
+    environment:
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledgerqueue?sslmode=disable
+    depends_on:
+      mockprovider:
+        condition: service_completed_successfully
