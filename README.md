@@ -2,11 +2,8 @@
 
 **Distributed job queue** in Go: separate API and workers, Redis-backed queue, Postgres persistence, retries and dead-letter queue, signed webhook ingestion, scheduled consistency checks, Prometheus metrics, Docker Compose, and Kubernetes manifests.
 
-```
-Mock webhook sender ──▶ API ──▶ Postgres (jobs + state)
-                              └──▶ Redis queue ──▶ Workers (N)
-CronJob / reconcile ──▶ compare internal records vs external export
-```
+<img width="811" height="464" alt="Screenshot 2026-10-16 at 13 15 59" src="https://github.com/user-attachments/assets/0a4d27e3-d4c7-4145-8257-57e89189e9f1" />
+
 
 ## Features
 
